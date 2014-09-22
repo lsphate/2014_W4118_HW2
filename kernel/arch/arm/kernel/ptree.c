@@ -1,5 +1,6 @@
 #include <linux/linkage.h>
 #include <linux/kernel.h>
+#include <linux/prinfo.h>
 #include <linux/syscalls.h>
 
 asmlinkage int sys_ptree(struct prinfo *buf, int *nr)
