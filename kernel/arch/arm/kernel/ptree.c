@@ -3,10 +3,19 @@
 #include <linux/prinfo.h>
 #include <linux/syscalls.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
 #include <linux/list.h>
+#include <asm/uaccess.h>
 
-asmlinkage int sys_ptree(struct prinfo *buf, int *nr)
+SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 {
+	struct prinfo * prinfoBuf;
+	int bufSize;
+
+	if (copy_from_user(&bufSize, nr, sizeof(int)))
+		return -EFAULT;
+
+	kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
 	
 	read_lock(&tasklist_lock); 
 	

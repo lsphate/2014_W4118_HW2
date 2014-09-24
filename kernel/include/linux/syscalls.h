@@ -858,6 +858,6 @@ asmlinkage long sys_process_vm_writev(pid_t pid,
 				      const struct iovec __user *rvec,
 				      unsigned long riovcnt,
 				      unsigned long flags);
-asmlinkage int sys_ptree(struct prinfo *buf, int *nr);
+asmlinkage long sys_ptree(struct prinfo *buf, int *nr);
 
 #endif
