@@ -24,18 +24,8 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	read_lock(&tasklist_lock); 
 	
 	struct task_struct *p = &init_task;
-
-	/*printk("PARENT PROCESS: ");
-	struct task_struct *initTask;
-	initTask = list_entry(p->children.next, struct task_struct, sibling);
-	printk("%s\n", initTask->comm);
-	*/
 	struct list_head *i;
-	/*list_for_each(i, &p->children) {
-		struct task_struct *currentTask;
-		currentTask = list_entry(i, struct task_struct, sibling);
-		printk("%s\n", currentTask->comm);
-	}*/
+	
 	for_each_process(p) {
 		struct task_struct *x;
 		pid_t first_childPID = 0;
@@ -44,7 +34,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			x = list_entry(p->children.prev, struct task_struct, sibling);
 			first_childPID = x->pid;
 		}
-		if(p->sibling.next != &p->sibling && p->sibling.next != &p->parent->children){
+		if(p->sibling.next != &p->sibling && p->sibling.next != &p->parent->children) {
 			x = list_entry(p->sibling.next, struct task_struct, sibling);
 			next_siblingPID = x->pid;
 		}
