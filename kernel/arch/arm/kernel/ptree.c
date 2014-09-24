@@ -16,7 +16,10 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		return -EFAULT;
 	printk("NR: %d\n\n", bufSize);
 
-	kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
+	prinfoBuf = kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
+
+	if (copy_from_user(prinfoBuf, buf, sizeof(struct prinfo) * bufSize))
+		return -EFAULT;
 	
 	read_lock(&tasklist_lock); 
 	
