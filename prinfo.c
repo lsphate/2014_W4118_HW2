@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 	
 	struct prinfo buff[ nr ];
 
-	x = syscall(223, buff, nr);
+	x = syscall(223, buff, &nr);
 
 	if (x == 0) 
 		printf("success\n");
