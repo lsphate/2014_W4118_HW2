@@ -14,6 +14,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 
 	if (copy_from_user(&bufSize, nr, sizeof(int)))
 		return -EFAULT;
+	printk("NR: %d\n\n", bufSize);
 
 	kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
 	
