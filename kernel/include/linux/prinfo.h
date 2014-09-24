@@ -14,3 +14,17 @@ struct prinfo {
 };
 
 #endif
+
+#ifndef _LINUX_PRINFO_LIST_H
+#define _LINUX_PRINFO_LIST_H
+
+#include <linux/types.h>
+#include <linux/list.h>
+
+struct prinfo_list {
+        struct list_head prinfolist;           /* process id of parent */
+        struct prinfo prinfo;                  /* process id */
+};
+
+#endif
+
