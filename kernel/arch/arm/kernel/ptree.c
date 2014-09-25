@@ -10,53 +10,53 @@
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 {
-	struct prinfo * prinfoBuf;
+	struct prinfo *prinfoBuf;
 	int bufSize, procnum;
 
 	if (copy_from_user(&bufSize, nr, sizeof(int)))
 		return -EINVAL;
-	printk("NR: %d\n\n", bufSize);
+	/*printk("NR: %d\n\n", bufSize);*/
 
 	prinfoBuf = kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
 	if (!prinfoBuf)
 		return -EFAULT;
 
-	struct prinfo_list * prinlist;
-	prinlist = kmalloc(sizeof(struct prinfo_list)* bufSize, GFP_KERNEL);
+	struct prinfo_list *prinlist;
+
+	prinlist = kmalloc(sizeof(struct prinfo_list) * bufSize, GFP_KERNEL);
 	if (!prinlist)
 		return -EFAULT;
-	
+
 	if (copy_from_user(prinfoBuf, buf, sizeof(struct prinfo) * bufSize))
 		return -EINVAL;
 
 	read_lock(&tasklist_lock); 
-	
 	struct task_struct *p = &init_task;
-	
-	
+
 	for_each_process(p) {
 		procnum++;	
 	} 
 
-	/* struct prinfo_list prinlist[128]; */
-	printk("Total processes: %d\n", procnum);
+	/*printk("Total processes: %d\n", procnum);*/
 	p = &init_task;
 
-	int count = 0;
+	int count;
 	struct list_head *i;
 	struct prinfo_list dfsStack;
-	INIT_LIST_HEAD(&dfsStack.dfs_order);
 
+	count = 0;
+	INIT_LIST_HEAD(&dfsStack.dfs_order);
 	prinlist[count].original_task = &(p->children);
 	INIT_LIST_HEAD(&(prinlist[count].dfs_order));
-	list_add_tail(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));	
+	list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));	
 	struct task_struct *z;
+
 	z = list_entry(prinlist[count].original_task, struct task_struct, children);
 
 	struct list_head *top;
 	int numCopied;
-	numCopied = 0;
 
+	numCopied = 0;
 	top = &(dfsStack.dfs_order);
 	while(top->next != &dfsStack.dfs_order && numCopied < bufSize) {
 		struct prinfo_list *currentTask;
@@ -67,9 +67,11 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			y = list_entry(currentTask->original_task, struct task_struct, sibling);
 		else
 			y = list_entry(currentTask->original_task, struct task_struct, children);
+
 		struct task_struct *z;
 		pid_t first_childPID = 0;
 		pid_t next_siblingPID = 0;
+
 		if(y->children.prev != &y->children) {
 			z = list_entry(y->children.prev, struct task_struct, sibling);
 			first_childPID = z->pid;
@@ -79,27 +81,26 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			next_siblingPID = z->pid;
 		}
 
-		strncpy (prinfoBuf[numCopied].comm, y->comm, 64);
+		strncpy(prinfoBuf[numCopied].comm, y->comm, 64);
 		prinfoBuf[numCopied].pid = y->pid;
 		prinfoBuf[numCopied].state = y->state;
 		prinfoBuf[numCopied].parent_pid = y->parent->pid;
 		prinfoBuf[numCopied].first_child_pid = first_childPID;
 		prinfoBuf[numCopied].next_sibling_pid = next_siblingPID;
-		printk("%s,%d,%ld,%d\n", y->comm, y->pid, y->state, y->parent->pid);
+		/*printk("%s,%d,%ld,%d\n", y->comm, y->pid, y->state, y->parent->pid);*/
 		numCopied++;
 		struct list_head *x;
+
 		/* If it has children add them to top of stack*/
-		list_for_each(x, &y->children) {
+		list_for_each_prev(x, &y->children) {
 			prinlist[++count].original_task = x;
 			INIT_LIST_HEAD(&(prinlist[count].dfs_order));
-			list_add_tail(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
+			list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
 		}
 	}
 	read_unlock(&tasklist_lock);
-	
+
 	if (copy_to_user (buf, prinfoBuf, sizeof(struct prinfo) * bufSize))
 		return -EINVAL;
-	
-	printk("Congrats, your new system call has been called successfully");
 	return 0;
 }
