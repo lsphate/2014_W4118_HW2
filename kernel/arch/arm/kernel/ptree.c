@@ -21,7 +21,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	if (!prinfoBuf)
 		return -EFAULT;
 
-	sturct prinfo_list prinlist[ nr ];
+	struct prinfo_list prinlist[ nr ];
 	prinlist = kmalloc(sizeof(struct prinfo_list) * nr, GFP_KERNEL);
 	if (!prinlist)
 		return -EFAULT;
@@ -47,11 +47,41 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	struct prinfo_list dfsStack;
 	INIT_LIST_HEAD(&dfsStack.dfs_order);
 
+	prinlist[count].original_task = &(p->children);
+	INIT_LIST_HEAD(&(prinlist[count].dfs_order));
+	list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));	
+	struct task_struct *z;
+	z = list_entry(prinlist[count].original_task, struct task_struct, children);
+
+	struct list_head *top;
+	int numCopied;
+	numCopied = 0;
+
+	top = &(dfsStack.dfs_order);
+	while(top->next != &dfsStack.dfs_order && numCopied < bufSize) {
+		struct prinfo_list *currentTask;
+		currentTask = list_entry(top->next, struct prinfo_list, dfs_order);
+		list_del(top->next);
+		struct task_struct *y;
+		if(count != 0) 
+			y = list_entry(currentTask->original_task, struct task_struct, sibling);
+		else
+			y = list_entry(currentTask->original_task, struct task_struct, children);
+		printk("%s,%d,%ld,%d\n", y->comm, y->pid, y->state, y->parent->pid);
+		numCopied++;
+		struct list_head *x;
+		/* If it has children add them to top of stack*/
+		list_for_each(x, &y->children) {
+			prinlist[++count].original_task = x;
+			INIT_LIST_HEAD(&(prinlist[count].dfs_order));
+			list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
+		}
+	}
+/*
 	list_for_each(i, &p->children) {
 		prinlist[count].original_task = i;
 		INIT_LIST_HEAD(&(prinlist[count].dfs_order));
 		list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
-		/* As long as there are children in the stack visit */
 		struct list_head *top;
 
 		top = &(dfsStack.dfs_order);
@@ -63,13 +93,15 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 			y = list_entry(currentTask->original_task, struct task_struct, sibling);
 			printk("%s,%d,%ld,%d\n", y->comm, y->pid, y->state, y->parent->pid);
 			struct list_head *x;
-			/* If it has children add them to top of stack*/
 			list_for_each(x, &y->children) {
 				prinlist[++count].original_task = x;
 				INIT_LIST_HEAD(&(prinlist[count].dfs_order));
 				list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
 			}
 		}
+		count++;	
+	}
+*/
 	/*	
 		struct task_struct *x;
 		struct prinfo_list *y;
@@ -87,8 +119,6 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		x = list_entry(p->sibling.next, struct task_struct, sibling);
 		printk("#%d - %s,%d,%ld,%d,%d,%d\n", count, p->comm, p->pid, p->state, p->parent->pid, first_childPID, next_siblingPID);
 	*/	
-		count++;	
-	}
 	read_unlock(&tasklist_lock);
 	printk("Congrats, your new system call has been called successfully");
 	return 0;
