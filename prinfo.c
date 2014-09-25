@@ -4,56 +4,6 @@
 #include <sys/syscall.h>
 #include "prinfo.h"
 
-/* Implement of stac k*/
-typedef struct Stack {
-	int capacity;
-	int size;
-	struct prinfo *elements;
-}Stack;
-
-Stack * createStack(int maxElements) {
-	/* Create a Stack */
-	Stack *S;
-	S = (Stack *)malloc(sizeof(Stack));
-
-	/* Initialise its properties */
-	S->elements = (struct prinfo *)malloc(sizeof(int)*maxElements);
-	S->size = 0;
-	S->capacity = maxElements;
-
-	return S;
-}
-
-void pop(Stack *S) {
-	if(S->size==0) {
-		printf("Stack is Empty\n");
-		return;
-	}
-	else {
-		S->size--;
-	}
-	return;
-}
-
-struct prinfo top(Stack *S) {
-	if(S->size==0) {
-		printf("Stack is Empty\n");
-		exit(0);
-	}
-	return S->elements[S->size-1];
-}
-
-void push(Stack *S, struct prinfo element) {
-	if(S->size == S->capacity) {
-		printf("Stack is Full\n");
-	}
-	else {
-		S->elements[S->size++] = element;
-	}
-	return;
-}
-/* Implement of stack */
-
 int main(int argc, char **argv) {
 	
 	int x;
@@ -73,22 +23,6 @@ int main(int argc, char **argv) {
 	struct prinfo *buf[ nr ];
 	x = syscall( 223, *buf, nr);
 	
-
-
-/*
-
-
-
-
-
-DFS here
-
-
-
-
-
-*/
-
 
 	int i ;
 
