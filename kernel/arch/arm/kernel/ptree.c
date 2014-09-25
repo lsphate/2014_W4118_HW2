@@ -5,6 +5,7 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/list.h>
+#include <linux/errno.h>
 #include <asm/uaccess.h>
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
@@ -13,13 +14,20 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	int bufSize, procnum, index;
 
 	if (copy_from_user(&bufSize, nr, sizeof(int)))
-		return -EFAULT;
+		return -EINVAL;
 	printk("NR: %d\n\n", bufSize);
 
 	prinfoBuf = kmalloc(sizeof(struct prinfo) * bufSize, GFP_KERNEL);
+	if (!prinfoBuf)
+		return -EFAULT;
+
+	sturct prinfo_list prinlist[ nr ];
+	prinlist = kmalloc(sizeof(struct prinfo_list) * nr, GFP_KERNEL);
+	if (!prinlist)
+		return -EFAULT;
 
 	if (copy_from_user(prinfoBuf, buf, sizeof(struct prinfo) * bufSize))
-		return -EFAULT;
+		return -EINVAL;
 	
 	read_lock(&tasklist_lock); 
 	
@@ -30,7 +38,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		procnum++;	
 	} 
 
-	struct prinfo_list prinlist[128];
+	/* struct prinfo_list prinlist[128]; */
 	printk("Total processes: %d\n", procnum);
 	p = &init_task;
 
