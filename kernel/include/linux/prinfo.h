@@ -22,8 +22,9 @@ struct prinfo {
 #include <linux/list.h>
 
 struct prinfo_list {
-        struct list_head prinfolist;           /* process id of parent */
-        struct prinfo prinfo;                  /* process id */
+        struct list_head dfs_order;           /* process id of parent */
+//        struct list_head original_task;                  /* process id */
+	struct prinfo prinfo;
 };
 
 #endif
