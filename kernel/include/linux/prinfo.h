@@ -23,8 +23,7 @@ struct prinfo {
 
 struct prinfo_list {
         struct list_head dfs_order;           /* process id of parent */
-//        struct list_head original_task;                  /* process id */
-	struct prinfo prinfo;
+	struct list_head *original_task;                  /* process id */
 };
 
 #endif

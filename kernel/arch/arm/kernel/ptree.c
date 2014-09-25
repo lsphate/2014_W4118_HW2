@@ -24,18 +24,28 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 	read_lock(&tasklist_lock); 
 	
 	struct task_struct *p = &init_task;
-	struct list_head *i;
 	
 	
 	for_each_process(p) {
 		procnum++;	
 	} 
 
-	struct prinfo_list prinlist[procnum];
-	p = init_task;
+	struct prinfo_list prinlist[128];
+	printk("Total processes: %d\n", procnum);
+	p = &init_task;
 
-	for_each_process(p) {
+	int count = 0;
+	struct list_head *i;
+	struct prinfo_list dfsStack;
+	INIT_LIST_HEAD(&dfsStack.dfs_order);
+
+	list_for_each(i, &p->children) {
+		prinlist[count].original_task = i;
+		INIT_LIST_HEAD(&(prinlist[count].dfs_order));
+		list_add(&(prinlist[count].dfs_order), &(dfsStack.dfs_order));
+	/*	
 		struct task_struct *x;
+		struct prinfo_list *y;
 		pid_t first_childPID = 0;
 		pid_t next_siblingPID = 0;
 		if(p->children.prev != &p->children) {
@@ -48,24 +58,21 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		}
 		
 		x = list_entry(p->sibling.next, struct task_struct, sibling);
-		printk("%s,%d,%ld,%d,%d,%d\n", p->comm, p->pid, p->state, p->parent->pid, first_childPID, next_siblingPID);
-		
-		
-		prinlist[index].prinfo.parent_pid = p->parent->pid;
-		prinlist[index].prinfo.pid = p->pid;
-		prinlist[index].prinfo.first_child_pid = first_childPID;
-		prinlist[index].prinfo.next_sibling_pid = next_siblingPID;
-		prinlist[index].prinfo.state = p->state;
-		prinlist[index].prinfo.uid = p->uid;
-		prinlist[index].prinfo.comm = p->comm;
-		
-		
-	//	prinlist[index].original_task = p->sibling;	
-		index++;
+		printk("#%d - %s,%d,%ld,%d,%d,%d\n", count, p->comm, p->pid, p->state, p->parent->pid, first_childPID, next_siblingPID);
+	*/	
+		count++;	
+	}
+
+	list_for_each(i, prinlist->dfs_order.next) {
+		struct prinfo_list *x;
+		struct task_struct *y;
+		x = list_entry(i, struct prinfo_list, dfs_order);
+		y = list_entry(x->original_task, struct task_struct, sibling);
+		printk("%s,%d,%ld,%d\n", y->comm, y->pid, y->state, y->parent->pid);
 	}
 		
 	/////////////////////////////////////DFS HERE !!!!!!!!!! ////////////////////////////////////
-	
+/*	
 		index = 1;
 		int i;
 		struct prinfo_list temp ;
@@ -97,7 +104,7 @@ SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 		}
 
 
-
+*/
 
 	read_unlock(&tasklist_lock);
 	printk("Congrats, your new system call has been called successfully");
