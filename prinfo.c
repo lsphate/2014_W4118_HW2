@@ -7,8 +7,8 @@
 int main(int argc, char **argv) {
 	
 	int x;
-	int nr =10 ;
-	int layer ;
+	int nr = 50 ;
+	int layer = 0 ;
 	
 	struct prinfo buf[nr];
 
@@ -23,9 +23,10 @@ int main(int argc, char **argv) {
 //	struct prinfo *buf[ nr ];
 //	x = syscall( 223, *buf, nr);
 	
+	printf("%d\n", nr);
 	printf("%s\n",buf[0].comm);	
 
-	int i ;
+	int i = 0;
 
 	while (i<nr) {
 		if ( buf[i].parent_pid == 0 )
