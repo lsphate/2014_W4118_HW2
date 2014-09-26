@@ -113,5 +113,9 @@ list_entry(y->sibling.next, struct task_struct, sibling);
 
 	if (copy_to_user(buf, prinfoBuf, sizeof(struct prinfo) * bufSize))
 		return -EINVAL;
+		
+	kfree(prinfoBuf);
+	kfree(prinlist);
+	
 	return 0;
 }
