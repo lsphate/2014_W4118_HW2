@@ -92,7 +92,8 @@ list_entry(y->sibling.next, struct task_struct, sibling);
 			next_siblingPID = z->pid;
 		}
 
-		strncpy(prinfoBuf[numCopied].comm, y->comm, 64);
+		strncpy(prinfoBuf[numCopied].comm,
+y->comm, sizeof(prinfoBuf[numCopied].comm));
 		prinfoBuf[numCopied].pid = y->pid;
 		prinfoBuf[numCopied].state = y->state;
 		prinfoBuf[numCopied].parent_pid = y->parent->pid;

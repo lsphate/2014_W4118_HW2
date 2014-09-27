@@ -1,0 +1,14 @@
+Problem 4.
+a)
+	The field in prinfo changes most is the children of "zygote". When the AVD started and entered homescreen, the children of zygote increased. These processes are the basic functions of Android phones and some widgets on homescreen. So other than the kernel of Android system, this field of process would likely be the part where Android applications run.
+
+b)
+	A process called com.android.browser starts, and its parent is zygote. When "Home" button pressed, AVD returns back to homescreen, but the process is still working in background and not been terminated.
+
+c)
+
+	  i) Zygote is a process in application layer, which create by init. The original name of this process is app_process. This process has two main jods: start the system server and open a VM and a socket to listen for connections ask running other Android application.
+
+	 ii) The code of app_process, a.k.a. zygote, is in /system/bin/app_process.
+
+	iii) According to the source code of app_process, zygote starts the JAVA VM, initializes the AndroidRuntime and preloads the libraries. Once an ask of run another Android application from user has been listend, the zygote do linux system call - fork() to execute the application. For systems without quite plenty resources, this mechanism can make the performance better by reducing the computation.
