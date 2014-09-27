@@ -114,5 +114,9 @@ y->comm, sizeof(prinfoBuf[numCopied].comm));
 
 	if (copy_to_user(buf, prinfoBuf, sizeof(struct prinfo) * bufSize))
 		return -EINVAL;
+		
+	kfree(prinfoBuf);
+	kfree(prinlist);
+	
 	return 0;
 }
