@@ -1,0 +1,11 @@
+Homework 3
+
+unis: aas2215, hc2751, sl3833
+
+The top directory contains prinfo.c and prinfo.h which contain our test program for printing out the DFS process tree with proper indentation. We tested our system call by passing in NULL pointers for nr and buf and got an "error: einval" each time as required by the assignment. 
+
+We also dynamically allocate the buf to ensure we fit the entire process tree. At first we had made a struct prinfo[] of a fixed size, but realized this wasn't the right way to do it. We now check in a do while loop to ensure we keep calling the ptree syscall until we get the entire process tree.
+
+The file ptree.c located in /kernel/arch/arm/kernel/ptree.c contains our implementation of the sys call. Our implementation first checks the validity of nr and buf. If valid we copy the user passed values using copy_from_user into kernel stack variables. We then get the root of the tree by starting at init_task which defines the first process, which is swapper in our case. We then iterate through the list of processes in a DFS mode by adding children to a stack. To iterate through the process list we use for_each_process passing in init_task as the starting point. This stack was implemented using the kernel style linked list in a struct called prinf_list which consists of a list_head pointing to the original task_struct and a list_head that keeps our DFS order. As we iterate we update the buf array. One thing we noticed was that our process names were cut off to only display 16 characters. This seemed to be the case whether we used strcpy or strncpy. 
+
+Once we've copied everything into the buf we return the total process count which could be higher than what we copied into buf.  
