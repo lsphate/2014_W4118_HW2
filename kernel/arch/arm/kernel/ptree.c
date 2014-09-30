@@ -10,9 +10,8 @@
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 {
-	if( !buf || !nr ) {
+	if (!buf || !nr)
 		return -EINVAL;
-	}
 
 	struct prinfo *prinfoBuf;
 	int bufSize = 0;

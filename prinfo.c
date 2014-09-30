@@ -22,8 +22,7 @@ int main(int argc, char **argv)
 			printf("error: %s\n", strerror(errno));
 			return -1;
 		}
-	}
-	while ( nr < x );
+	} while (nr < x);
 	int i = 0;
 
 	printf("%s,%d,%ld,%d,%d,%d,%ld\n",
