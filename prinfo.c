@@ -8,15 +8,22 @@
 
 int main(int argc, char **argv)
 {
-	int x;
-	int nr = 70;
+	int x = 1;
+	int nr = 0;
 	int layer =  1;
-	struct prinfo buf[nr];
+	struct prinfo *buf = NULL;
 
-	x = syscall(223, buf, &nr);
-	if (x != 0)
-		printf("error: %s\n", strerror(errno));
-
+	do {
+		nr = x;
+		free(buf);
+		buf = malloc(sizeof(struct prinfo) * nr);
+		x = (int)syscall(223, buf, &nr);
+		if (x < 0) {
+			printf("error: %s\n", strerror(errno));
+			return -1;
+		}
+	}
+	while ( nr < x );
 	int i = 0;
 
 	printf("%s,%d,%ld,%d,%d,%d,%ld\n",
@@ -46,5 +53,6 @@ buf[i].parent_pid, buf[i].first_child_pid, buf[i].next_sibling_pid, buf[i].uid);
 		}
 	i++;
 	}
+	free(buf);
 	return 0;
 }

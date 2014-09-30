@@ -10,12 +10,16 @@
 
 SYSCALL_DEFINE2(ptree, struct prinfo *, buf, int *, nr)
 {
+	if( !buf || !nr ) {
+		return -EINVAL;
+	}
+
 	struct prinfo *prinfoBuf;
-	int bufSize, procnum;
+	int bufSize = 0;
+	int procnum = 0;
 
 	if (copy_from_user(&bufSize, nr, sizeof(int)))
 		return -EINVAL;
-	/*printk("NR: %d\n\n", bufSize);*/
 
 	prinfoBuf =
 kmalloc_array(bufSize, sizeof(struct prinfo), GFP_KERNEL);
@@ -39,7 +43,6 @@ kmalloc_array(bufSize, sizeof(struct prinfo_list), GFP_KERNEL);
 		procnum++;
 	}
 
-	/*printk("Total processes: %d\n", procnum);*/
 	p = &init_task;
 
 	int count;
@@ -117,6 +120,5 @@ y->comm, sizeof(prinfoBuf[numCopied].comm));
 
 	kfree(prinfoBuf);
 	kfree(prinlist);
-
-	return 0;
+	return procnum;
 }
